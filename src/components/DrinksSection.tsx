@@ -96,18 +96,19 @@ const BigDickMikeTitle = () => {
   }, []);
 
   return (
-    <div className="h-14 flex items-end justify-center overflow-visible">
-      <div ref={containerRef} className="flex items-end relative">
+    <h3 className="font-heading text-lg font-bold tracking-wider mb-2">
+      <span ref={containerRef} className="inline-flex items-end">
         {letters.map((letter, i) => (
           <span
             key={i}
-            className="letter-span inline-block font-heading text-lg font-bold text-foreground transition-all duration-500 origin-bottom group-hover:text-accent"
+            className="letter-span inline-block text-foreground group-hover:text-accent transition-all duration-500 origin-bottom"
+            style={{ letterSpacing: '0.05em' }}
           >
             {letter === " " ? "\u00A0" : letter}
           </span>
         ))}
-      </div>
-    </div>
+      </span>
+    </h3>
   );
 };
 
