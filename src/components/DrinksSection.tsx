@@ -52,6 +52,40 @@ const cocktails = [
   },
 ];
 
+const BigDickMikeTitle = () => {
+  const text = "Big Dick Mike";
+  const letters = text.split("");
+  const curveStartIndex = 5;
+  const curveLength = letters.length - curveStartIndex;
+  
+  return (
+    <div className="h-14 flex items-end justify-center overflow-visible">
+      <div className="flex items-end relative">
+        {letters.map((letter, i) => {
+          let riseAmount = 0;
+          
+          if (i >= curveStartIndex) {
+            const curveProgress = (i - curveStartIndex) / (curveLength - 1);
+            riseAmount = curveProgress * curveProgress * 18;
+          }
+          
+          return (
+            <span
+              key={i}
+              className="inline-block font-heading text-lg font-bold text-foreground group-hover:text-accent transition-all duration-500 origin-bottom"
+              style={{
+                transform: `translateY(${riseAmount}px)`,
+              }}
+            >
+              {letter === " " ? "\u00A0" : letter}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const DrinksSection = () => {
   return (
     <section id="drinks" className="relative py-24 md:py-32 bg-secondary/30 noise-overlay">
@@ -82,20 +116,14 @@ const DrinksSection = () => {
                 </div>
                 
                 {isBigDickMike ? (
-                  <div className="overflow-hidden py-2">
-                    <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors relative big-dick-title">
-                      <span className="inline-block transition-all duration-500 ease-out group-hover:scale-y-125 group-hover:-translate-y-2 group-hover:tracking-widest origin-bottom">
-                        Big Dick Mike
-                      </span>
-                    </h3>
-                  </div>
+                  <BigDickMikeTitle />
                 ) : (
                   <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors mb-2">
                     {drink.name}
                   </h3>
                 )}
                 
-                <p className="text-sm text-muted-foreground">{drink.desc}</p>
+                <p className="text-sm text-muted-foreground mt-2">{drink.desc}</p>
               </div>
             );
           })}
