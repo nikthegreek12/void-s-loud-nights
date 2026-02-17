@@ -37,6 +37,7 @@ const cocktails = [
     desc: "Rye whiskey, bitters, demerara, orange",
     price: "$16",
     icon: Wine,
+    special: "warPigs",
   },
   {
     name: "Big Dick Mike",
@@ -112,6 +113,54 @@ const BigDickMikeTitle = () => {
   );
 };
 
+const WarPigsTitle = () => {
+  return (
+    <div className="relative mb-2">
+      {/* Armored Pig SVG - slides from left to right on hover */}
+      <svg 
+        className="war-pig absolute -left-4 top-1/2 -translate-y-1/2 w-12 h-8 opacity-0 pointer-events-none"
+        viewBox="0 0 100 60"
+        fill="none"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {/* Pig body */}
+        <ellipse cx="50" cy="35" rx="30" ry="18" />
+        {/* Pig head */}
+        <ellipse cx="82" cy="30" rx="14" ry="12" />
+        {/* Snout */}
+        <ellipse cx="94" cy="32" rx="5" ry="4" />
+        {/* Eye */}
+        <circle cx="86" cy="28" r="2" fill="white" />
+        {/* Ear */}
+        <path d="M 78 20 Q 82 15 86 20" />
+        {/* Legs */}
+        <line x1="30" y1="50" x2="30" y2="58" />
+        <line x1="42" y1="50" x2="42" y2="58" />
+        <line x1="58" y1="50" x2="58" y2="58" />
+        <line x1="70" y1="50" x2="70" y2="58" />
+        {/* Tail */}
+        <path d="M 20 35 Q 10 30 15 25 Q 8 20 12 15" />
+        {/* Helmet */}
+        <path d="M 70 18 Q 82 8 94 18" strokeWidth="2" />
+        <line x1="82" y1="8" x2="82" y2="3" strokeWidth="2" />
+        <circle cx="82" cy="2" r="2" fill="white" />
+        {/* Armor plates */}
+        <path d="M 25 20 L 50 15 L 75 20" strokeWidth="2" />
+        <line x1="35" y1="17" x2="35" y2="25" strokeWidth="1" />
+        <line x1="50" y1="15" x2="50" y2="25" strokeWidth="1" />
+        <line x1="65" y1="17" x2="65" y2="25" strokeWidth="1" />
+      </svg>
+      
+      <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors relative z-10">
+        War Pigs Old Fashioned
+      </h3>
+    </div>
+  );
+};
+
 const DrinksSection = () => {
   return (
     <section id="drinks" className="relative py-24 md:py-32 bg-secondary/30 noise-overlay">
@@ -130,11 +179,12 @@ const DrinksSection = () => {
           {cocktails.map((drink, i) => {
             const Icon = drink.icon;
             const isBigDickMike = drink.special === "bigDickMike";
+            const isWarPigs = drink.special === "warPigs";
             
             return (
               <div
                 key={i}
-                className="group bg-card border border-border hover:border-accent/40 transition-all duration-300 p-6"
+                className="group bg-card border border-border hover:border-accent/40 transition-all duration-300 p-6 overflow-hidden"
               >
                 <div className="flex items-start justify-between mb-3">
                   <Icon size={20} className="text-accent mt-1"/>
@@ -143,6 +193,8 @@ const DrinksSection = () => {
                 
                 {isBigDickMike ? (
                   <BigDickMikeTitle />
+                ) : isWarPigs ? (
+                  <WarPigsTitle />
                 ) : (
                   <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors mb-2">
                     {drink.name}
@@ -155,6 +207,36 @@ const DrinksSection = () => {
           })}
         </div>
       </div>
+
+      <style>{`
+        .war-pig {
+          opacity: 0;
+          transform: translateX(-100px) translateY(-50%);
+          transition: none;
+        }
+        
+        .group:hover .war-pig {
+          opacity: 0.8;
+          animation: warPigMarch 1.5s ease-out forwards;
+        }
+        
+        @keyframes warPigMarch {
+          0% {
+            opacity: 0;
+            transform: translateX(-100px) translateY(-50%);
+          }
+          10% {
+            opacity: 0.8;
+          }
+          90% {
+            opacity: 0.8;
+          }
+          100% {
+            opacity: 0;
+            transform: translateX(180px) translateY(-50%);
+          }
+        }
+      `}</style>
     </section>
   );
 };
