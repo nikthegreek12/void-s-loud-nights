@@ -31,7 +31,7 @@ const AboutSection = () => {
                 <p className="text-sm text-muted-foreground mt-1">Shows Hosted</p>
               </div>
               <div>
-                <p className="font-heading text-3xl md:text-4xl font-bold text-foreground">21+</p>
+                <p className="font-heading text-3xl md:text-4xl font-bold text-foreground">18+</p>
                 <p className="text-sm text-muted-foreground mt-1">Age Policy</p>
               </div>
             </div>
