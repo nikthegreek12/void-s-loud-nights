@@ -60,15 +60,16 @@ const BigDickMikeTitle = () => {
   const curveStartIndex = 5;
   const curveLength = letters.length - curveStartIndex;
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const card = container.closest('.group');
+    const card = container.closest('.drink-card');
     if (!card) return;
 
-    const handleEnter = () => {
+    const animate = () => {
       const spans = container.querySelectorAll('.letter-span');
       spans.forEach((span, i) => {
         let riseAmount = 0;
@@ -80,20 +81,66 @@ const BigDickMikeTitle = () => {
       });
     };
 
-    const handleLeave = () => {
+    const reset = () => {
       const spans = container.querySelectorAll('.letter-span');
       spans.forEach((span) => {
         (span as HTMLElement).style.transform = 'translateY(0px)';
       });
     };
 
-    card.addEventListener('mouseenter', handleEnter);
-    card.addEventListener('mouseleave', handleLeave);
+    // Desktop: hover events
+    const handleMouseEnter = () => animate();
+    const handleMouseLeave = () => reset();
 
-    return () => {
-      card.removeEventListener('mouseenter', handleEnter);
-      card.removeEventListener('mouseleave', handleLeave);
+    // Mobile: click/tap events
+    const handleClick = () => {
+      if (hasAnimatedRef.current) {
+        reset();
+        hasAnimatedRef.current = false;
+      } else {
+        animate();
+        hasAnimatedRef.current = true;
+      }
     };
+
+    // Check if touch device
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    if (isTouchDevice) {
+      // Mobile: Intersection Observer for scroll trigger
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              animate();
+              hasAnimatedRef.current = true;
+              setTimeout(() => {
+                reset();
+                hasAnimatedRef.current = false;
+              }, 2000);
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+
+      observer.observe(card);
+      card.addEventListener('click', handleClick);
+
+      return () => {
+        observer.disconnect();
+        card.removeEventListener('click', handleClick);
+      };
+    } else {
+      // Desktop: hover
+      card.addEventListener('mouseenter', handleMouseEnter);
+      card.addEventListener('mouseleave', handleMouseLeave);
+
+      return () => {
+        card.removeEventListener('mouseenter', handleMouseEnter);
+        card.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }
   }, []);
 
   return (
@@ -113,12 +160,61 @@ const BigDickMikeTitle = () => {
   );
 };
 
-const WarPigsTitle = () => {
+const WarPigsDescription = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const card = container.closest('.drink-card');
+    if (!card) return;
+
+    const pig = container.querySelector('.war-pig') as SVGElement;
+    if (!pig) return;
+
+    const animate = () => {
+      pig.style.animation = 'none';
+      pig.offsetHeight; // Trigger reflow
+      pig.style.animation = 'warPigMarch 1.5s ease-out forwards';
+    };
+
+    // Check if touch device
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    if (isTouchDevice) {
+      // Mobile: Intersection Observer for scroll trigger
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              animate();
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+
+      observer.observe(card);
+
+      // Mobile: click to trigger
+      card.addEventListener('click', animate);
+
+      return () => {
+        observer.disconnect();
+        card.removeEventListener('click', animate);
+      };
+    }
+  }, []);
+
   return (
-    <div className="relative mb-2">
+    <div ref={containerRef} className="relative mt-2">
+      <p className="text-sm text-muted-foreground relative z-10">
+        Rye whiskey, bitters, demerara, orange
+      </p>
       {/* Armored Pig SVG - slides from left to right on hover */}
       <svg 
-        className="war-pig absolute -left-4 top-1/2 -translate-y-1/2 w-12 h-8 opacity-0 pointer-events-none"
+        className="war-pig absolute left-0 top-0 w-10 h-6 pointer-events-none"
         viewBox="0 0 100 60"
         fill="none"
         stroke="white"
@@ -153,10 +249,6 @@ const WarPigsTitle = () => {
         <line x1="50" y1="15" x2="50" y2="25" strokeWidth="1" />
         <line x1="65" y1="17" x2="65" y2="25" strokeWidth="1" />
       </svg>
-      
-      <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors relative z-10">
-        War Pigs Old Fashioned
-      </h3>
     </div>
   );
 };
@@ -184,7 +276,7 @@ const DrinksSection = () => {
             return (
               <div
                 key={i}
-                className="group bg-card border border-border hover:border-accent/40 transition-all duration-300 p-6 overflow-hidden"
+                className="drink-card group bg-card border border-border hover:border-accent/40 transition-all duration-300 p-6 overflow-hidden"
               >
                 <div className="flex items-start justify-between mb-3">
                   <Icon size={20} className="text-accent mt-1"/>
@@ -193,15 +285,17 @@ const DrinksSection = () => {
                 
                 {isBigDickMike ? (
                   <BigDickMikeTitle />
-                ) : isWarPigs ? (
-                  <WarPigsTitle />
                 ) : (
                   <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors mb-2">
                     {drink.name}
                   </h3>
                 )}
                 
-                <p className="text-sm text-muted-foreground mt-2">{drink.desc}</p>
+                {isWarPigs ? (
+                  <WarPigsDescription />
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-2">{drink.desc}</p>
+                )}
               </div>
             );
           })}
@@ -211,19 +305,17 @@ const DrinksSection = () => {
       <style>{`
         .war-pig {
           opacity: 0;
-          transform: translateX(-100px) translateY(-50%);
-          transition: none;
+          transform: translateX(-80px);
         }
         
         .group:hover .war-pig {
-          opacity: 0.8;
           animation: warPigMarch 1.5s ease-out forwards;
         }
         
         @keyframes warPigMarch {
           0% {
             opacity: 0;
-            transform: translateX(-100px) translateY(-50%);
+            transform: translateX(-80px);
           }
           10% {
             opacity: 0.8;
@@ -233,7 +325,7 @@ const DrinksSection = () => {
           }
           100% {
             opacity: 0;
-            transform: translateX(180px) translateY(-50%);
+            transform: translateX(180px);
           }
         }
       `}</style>
