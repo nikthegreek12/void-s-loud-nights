@@ -42,6 +42,7 @@ const cocktails = [
     desc: "Bourbon, Fireball, honey liqueur, lime, smoked salt rim – a real mouthful",
     price: "$18",
     icon: Wine,
+    special: "bigDickMike",
   },
   {
     name: "Nigger Fireman",
@@ -68,6 +69,8 @@ const DrinksSection = () => {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {cocktails.map((drink, i) => {
             const Icon = drink.icon;
+            const isBigDickMike = drink.special === "bigDickMike";
+            
             return (
               <div
                 key={i}
@@ -77,9 +80,21 @@ const DrinksSection = () => {
                   <Icon size={20} className="text-accent mt-1"/>
                   <span className="font-heading text-xl font-bold text-accent">{drink.price}</span>
                 </div>
-                <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors mb-2">
-                  {drink.name}
-                </h3>
+                
+                {isBigDickMike ? (
+                  <div className="overflow-hidden py-2">
+                    <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors relative big-dick-title">
+                      <span className="inline-block transition-all duration-500 ease-out group-hover:scale-y-125 group-hover:-translate-y-2 group-hover:tracking-widest origin-bottom">
+                        Big Dick Mike
+                      </span>
+                    </h3>
+                  </div>
+                ) : (
+                  <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors mb-2">
+                    {drink.name}
+                  </h3>
+                )}
+                
                 <p className="text-sm text-muted-foreground">{drink.desc}</p>
               </div>
             );
