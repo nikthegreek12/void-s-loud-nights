@@ -1,4 +1,5 @@
 import { Beer, Wine, GlassWater, Flame } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 const cocktails = [
   {
@@ -57,30 +58,54 @@ const BigDickMikeTitle = () => {
   const letters = text.split("");
   const curveStartIndex = 5;
   const curveLength = letters.length - curveStartIndex;
-  
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const card = container.closest('.group');
+    if (!card) return;
+
+    const handleEnter = () => {
+      const spans = container.querySelectorAll('.letter-span');
+      spans.forEach((span, i) => {
+        let riseAmount = 0;
+        if (i >= curveStartIndex) {
+          const curveProgress = (i - curveStartIndex) / (curveLength - 1);
+          riseAmount = curveProgress * curveProgress * 20;
+        }
+        (span as HTMLElement).style.transform = `translateY(-${riseAmount}px)`;
+      });
+    };
+
+    const handleLeave = () => {
+      const spans = container.querySelectorAll('.letter-span');
+      spans.forEach((span) => {
+        (span as HTMLElement).style.transform = 'translateY(0px)';
+      });
+    };
+
+    card.addEventListener('mouseenter', handleEnter);
+    card.addEventListener('mouseleave', handleLeave);
+
+    return () => {
+      card.removeEventListener('mouseenter', handleEnter);
+      card.removeEventListener('mouseleave', handleLeave);
+    };
+  }, []);
+
   return (
     <div className="h-14 flex items-end justify-center overflow-visible">
-      <div className="flex items-end relative">
-        {letters.map((letter, i) => {
-          let riseAmount = 0;
-          
-          if (i >= curveStartIndex) {
-            const curveProgress = (i - curveStartIndex) / (curveLength - 1);
-            riseAmount = curveProgress * curveProgress * 18;
-          }
-          
-          return (
-            <span
-              key={i}
-              className="inline-block font-heading text-lg font-bold text-foreground group-hover:text-accent transition-all duration-500 origin-bottom"
-              style={{
-                transform: `translateY(${riseAmount}px)`,
-              }}
-            >
-              {letter === " " ? "\u00A0" : letter}
-            </span>
-          );
-        })}
+      <div ref={containerRef} className="flex items-end relative">
+        {letters.map((letter, i) => (
+          <span
+            key={i}
+            className="letter-span inline-block font-heading text-lg font-bold text-foreground transition-all duration-500 origin-bottom group-hover:text-accent"
+          >
+            {letter === " " ? "\u00A0" : letter}
+          </span>
+        ))}
       </div>
     </div>
   );
