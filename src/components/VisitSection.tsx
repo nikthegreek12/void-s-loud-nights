@@ -39,7 +39,7 @@ const VisitSection = () => {
               <ShieldCheck className="text-primary shrink-0 mt-1" size={20}/>
               <div>
                 <h3 className="font-heading text-lg font-bold tracking-wider text-foreground mb-1">Age Policy</h3>
-                <p className="text-muted-foreground">21+ with valid ID. No exceptions except if you've got a pumped ass. Go girl.</p>
+                <p className="text-muted-foreground">18+ with valid ID. No exceptions except if you've got a pumped ass. Go girl.</p>
               </div>
             </div>
             
