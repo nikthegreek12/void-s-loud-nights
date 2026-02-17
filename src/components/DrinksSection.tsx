@@ -70,19 +70,19 @@ const BigDickMikeTitle = () => {
     const handleEnter = () => {
       const spans = container.querySelectorAll('.letter-span');
       spans.forEach((span, i) => {
+        let riseAmount = 0;
         if (i >= curveStartIndex) {
           const curveProgress = (i - curveStartIndex) / (curveLength - 1);
-          const riseAmount = curveProgress * curveProgress * 16;
-          const rotateAmount = (curveProgress - 0.5) * 12;
-          (span as HTMLElement).style.transform = `translateY(-${riseAmount}px) rotate(${rotateAmount}deg)`;
+          riseAmount = curveProgress * curveProgress * 20;
         }
+        (span as HTMLElement).style.transform = `translateY(-${riseAmount}px)`;
       });
     };
 
     const handleLeave = () => {
       const spans = container.querySelectorAll('.letter-span');
       spans.forEach((span) => {
-        (span as HTMLElement).style.transform = 'translateY(0px) rotate(0deg)';
+        (span as HTMLElement).style.transform = 'translateY(0px)';
       });
     };
 
