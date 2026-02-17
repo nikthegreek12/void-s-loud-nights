@@ -60,7 +60,6 @@ const BigDickMikeTitle = () => {
   const curveStartIndex = 5;
   const curveLength = letters.length - curveStartIndex;
   const containerRef = useRef<HTMLDivElement>(null);
-  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -88,51 +87,34 @@ const BigDickMikeTitle = () => {
       });
     };
 
-    // Desktop: hover events
-    const handleMouseEnter = () => animate();
-    const handleMouseLeave = () => reset();
-
-    // Mobile: click/tap events
-    const handleClick = () => {
-      if (hasAnimatedRef.current) {
-        reset();
-        hasAnimatedRef.current = false;
-      } else {
-        animate();
-        hasAnimatedRef.current = true;
-      }
-    };
-
     // Check if touch device
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     if (isTouchDevice) {
-      // Mobile: Intersection Observer for scroll trigger
+      // Mobile: trigger when in view
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               animate();
-              hasAnimatedRef.current = true;
-              setTimeout(() => {
-                reset();
-                hasAnimatedRef.current = false;
-              }, 2000);
+            } else {
+              reset();
             }
           });
         },
-        { threshold: 0.5 }
+        { threshold: 0.75 }
       );
 
       observer.observe(card);
-      card.addEventListener('click', handleClick);
 
       return () => {
         observer.disconnect();
-        card.removeEventListener('click', handleClick);
       };
     } else {
-      // Desktop: hover
+      // Desktop: hover events
+      const handleMouseEnter = () => animate();
+      const handleMouseLeave = () => reset();
+
       card.addEventListener('mouseenter', handleMouseEnter);
       card.addEventListener('mouseleave', handleMouseLeave);
 
@@ -149,7 +131,7 @@ const BigDickMikeTitle = () => {
         {letters.map((letter, i) => (
           <span
             key={i}
-            className="letter-span inline-block text-foreground group-hover:text-accent transition-all duration-500 origin-bottom"
+            className="letter-span inline-block text-foreground transition-all duration-500 origin-bottom"
             style={{ letterSpacing: '0.05em' }}
           >
             {letter === " " ? "\u00A0" : letter}
@@ -175,7 +157,7 @@ const WarPigsDescription = () => {
 
     const animate = () => {
       pig.style.animation = 'none';
-      pig.offsetHeight; // Trigger reflow
+      pig.offsetHeight;
       pig.style.animation = 'warPigMarch 1.5s ease-out forwards';
     };
 
@@ -183,7 +165,7 @@ const WarPigsDescription = () => {
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     if (isTouchDevice) {
-      // Mobile: Intersection Observer for scroll trigger
+      // Mobile: trigger when in view
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -192,17 +174,13 @@ const WarPigsDescription = () => {
             }
           });
         },
-        { threshold: 0.5 }
+        { threshold: 0.75 }
       );
 
       observer.observe(card);
 
-      // Mobile: click to trigger
-      card.addEventListener('click', animate);
-
       return () => {
         observer.disconnect();
-        card.removeEventListener('click', animate);
       };
     }
   }, []);
@@ -212,7 +190,6 @@ const WarPigsDescription = () => {
       <p className="text-sm text-muted-foreground relative z-10">
         Rye whiskey, bitters, demerara, orange
       </p>
-      {/* Armored Pig SVG - slides from left to right on hover */}
       <svg 
         className="war-pig absolute left-0 top-0 w-10 h-6 pointer-events-none"
         viewBox="0 0 100 60"
@@ -222,33 +199,87 @@ const WarPigsDescription = () => {
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        {/* Pig body */}
         <ellipse cx="50" cy="35" rx="30" ry="18" />
-        {/* Pig head */}
         <ellipse cx="82" cy="30" rx="14" ry="12" />
-        {/* Snout */}
         <ellipse cx="94" cy="32" rx="5" ry="4" />
-        {/* Eye */}
         <circle cx="86" cy="28" r="2" fill="white" />
-        {/* Ear */}
         <path d="M 78 20 Q 82 15 86 20" />
-        {/* Legs */}
         <line x1="30" y1="50" x2="30" y2="58" />
         <line x1="42" y1="50" x2="42" y2="58" />
         <line x1="58" y1="50" x2="58" y2="58" />
         <line x1="70" y1="50" x2="70" y2="58" />
-        {/* Tail */}
         <path d="M 20 35 Q 10 30 15 25 Q 8 20 12 15" />
-        {/* Helmet */}
         <path d="M 70 18 Q 82 8 94 18" strokeWidth="2" />
         <line x1="82" y1="8" x2="82" y2="3" strokeWidth="2" />
         <circle cx="82" cy="2" r="2" fill="white" />
-        {/* Armor plates */}
         <path d="M 25 20 L 50 15 L 75 20" strokeWidth="2" />
         <line x1="35" y1="17" x2="35" y2="25" strokeWidth="1" />
         <line x1="50" y1="15" x2="50" y2="25" strokeWidth="1" />
         <line x1="65" y1="17" x2="65" y2="25" strokeWidth="1" />
       </svg>
+    </div>
+  );
+};
+
+const DrinkCard = ({ drink }: { drink: typeof cocktails[0] }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const Icon = drink.icon;
+  const isBigDickMike = drink.special === "bigDickMike";
+  const isWarPigs = drink.special === "warPigs";
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    // Check if touch device
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    if (isTouchDevice) {
+      // Mobile: add 'in-view' class when 75% visible
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              card.classList.add('in-view');
+            } else {
+              card.classList.remove('in-view');
+            }
+          });
+        },
+        { threshold: 0.75 }
+      );
+
+      observer.observe(card);
+
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, []);
+
+  return (
+    <div
+      ref={cardRef}
+      className="drink-card group bg-card border border-border transition-all duration-300 p-6 overflow-hidden"
+    >
+      <div className="flex items-start justify-between mb-3">
+        <Icon size={20} className="text-accent mt-1"/>
+        <span className="font-heading text-xl font-bold text-accent">{drink.price}</span>
+      </div>
+      
+      {isBigDickMike ? (
+        <BigDickMikeTitle />
+      ) : (
+        <h3 className="drink-title font-heading text-lg font-bold tracking-wider text-foreground transition-colors mb-2">
+          {drink.name}
+        </h3>
+      )}
+      
+      {isWarPigs ? (
+        <WarPigsDescription />
+      ) : (
+        <p className="text-sm text-muted-foreground mt-2">{drink.desc}</p>
+      )}
     </div>
   );
 };
@@ -268,48 +299,41 @@ const DrinksSection = () => {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
-          {cocktails.map((drink, i) => {
-            const Icon = drink.icon;
-            const isBigDickMike = drink.special === "bigDickMike";
-            const isWarPigs = drink.special === "warPigs";
-            
-            return (
-              <div
-                key={i}
-                className="drink-card group bg-card border border-border hover:border-accent/40 transition-all duration-300 p-6 overflow-hidden"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <Icon size={20} className="text-accent mt-1"/>
-                  <span className="font-heading text-xl font-bold text-accent">{drink.price}</span>
-                </div>
-                
-                {isBigDickMike ? (
-                  <BigDickMikeTitle />
-                ) : (
-                  <h3 className="font-heading text-lg font-bold tracking-wider text-foreground group-hover:text-accent transition-colors mb-2">
-                    {drink.name}
-                  </h3>
-                )}
-                
-                {isWarPigs ? (
-                  <WarPigsDescription />
-                ) : (
-                  <p className="text-sm text-muted-foreground mt-2">{drink.desc}</p>
-                )}
-              </div>
-            );
-          })}
+          {cocktails.map((drink, i) => (
+            <DrinkCard key={i} drink={drink} />
+          ))}
         </div>
       </div>
 
       <style>{`
+        /* Desktop: hover effects */
+        @media (hover: hover) and (pointer: fine) {
+          .drink-card:hover {
+            border-color: hsl(var(--accent) / 0.4);
+          }
+          .drink-card:hover .drink-title,
+          .drink-card:hover .letter-span {
+            color: hsl(var(--accent));
+          }
+          .drink-card:hover .war-pig {
+            animation: warPigMarch 1.5s ease-out forwards;
+          }
+        }
+        
+        /* Mobile: in-view effects (75% visible) */
+        @media (hover: none) or (pointer: coarse) {
+          .drink-card.in-view {
+            border-color: hsl(var(--accent) / 0.4);
+          }
+          .drink-card.in-view .drink-title,
+          .drink-card.in-view .letter-span {
+            color: hsl(var(--accent));
+          }
+        }
+        
         .war-pig {
           opacity: 0;
           transform: translateX(-80px);
-        }
-        
-        .group:hover .war-pig {
-          animation: warPigMarch 1.5s ease-out forwards;
         }
         
         @keyframes warPigMarch {
